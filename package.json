@@ -4,5 +4,8 @@
   "main": "index.js",
   "scripts": {
     "demo": "node index.js"
+  },
+  "dependencies": {
+    "playwright": "^1.41.1"
   }
 }
