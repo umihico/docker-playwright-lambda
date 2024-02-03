@@ -3,12 +3,13 @@ service: docker-playwright-lambda
 provider:
   name: aws
   stage: ${opt:stage, 'prod'}
+  stackName: docker-playwright-lambda-${self:provider.stage}
   region: ${env:AWS_REGION, 'us-east-1'}
   ecr:
     images:
       img:
         path: ./
-        platforms: linux/amd64 # or linux/arm64 may result in better pricing and performance.
+        platform: linux/amd64 # or linux/arm64 may result in better pricing and performance.
   architecture: x86_64 # or arm64 may result in better pricing and performance.
 
 functions:
