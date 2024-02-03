@@ -1,0 +1,30 @@
+name: demo-test
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - run-demo-test**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  demo-test:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-northeast-1
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Demo README's instructions
+        run: |
+          npm install -g serverless
+          sls create --template-url "https://github.com/umihico/docker-playwright-lambda/tree/main" --path docker-playwright-lambda && cd $_
+          sls deploy
+          sls invoke --function demo |& tee /tmp/scraping-result.txt
+          cat /tmp/scraping-result.txt | grep -q "This domain is for use in illustrative examples in documents"
