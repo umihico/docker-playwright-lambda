@@ -23,7 +23,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
       - name: Install Serverless Framework
         run: npm install -g serverless
-      - run: aws cloudformation wait stack-update-complete --stack-name="docker-playwright-lambda-prod" || true
+      - name: Wait for CloudFormation stack to be updated
+        run: aws cloudformation wait stack-update-complete --stack-name="docker-playwright-lambda-prod" || true
       - name: Deploy
         run: sls deploy
       - name: Invoke
