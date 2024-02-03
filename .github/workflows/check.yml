@@ -7,6 +7,9 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: check
+
 jobs:
   check:
     runs-on: ubuntu-latest
