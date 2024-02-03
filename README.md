@@ -1,5 +1,7 @@
 # docker-playwright-lambda
 
+[![badge](https://github.com/umihico/docker-selenium-lambda/actions/workflows/demo-test.yml/badge.svg)](https://github.com/umihico/docker-playwright-lambda/actions/workflows/demo-test.yml)
+
 ## Running the demo
 
 ```bash
@@ -12,6 +14,6 @@ $ sls invoke --function demo # Yay! You will get texts of example.com
 
 ## Side Projects
 
-Are you interested in Python or Selenium? Please check out [docker-selenium-lambda](https://github.com/umihico/docker-selenium-lambda)
+Are you interested in **Python** or **Selenium**? Please check out [docker-selenium-lambda](https://github.com/umihico/docker-selenium-lambda)
 
 If you don't want to create functions each time for each purpose, Please check out [pythonista-chromeless](https://github.com/umihico/pythonista-chromeless)
