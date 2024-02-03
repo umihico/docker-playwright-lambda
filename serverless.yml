@@ -3,6 +3,7 @@ service: docker-playwright-lambda
 provider:
   name: aws
   stage: ${opt:stage, 'prod'}
+  stackName: docker-playwright-lambda-${self:provider.stage}
   region: ${env:AWS_REGION, 'us-east-1'}
   ecr:
     images:
