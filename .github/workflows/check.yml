@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: check
+  group: deploy-prod-stack
 
 jobs:
   check:

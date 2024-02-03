@@ -11,6 +11,9 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: deploy-prod-stack
+
 jobs:
   demo-test:
     runs-on: ubuntu-latest
