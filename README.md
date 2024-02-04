@@ -1,6 +1,15 @@
 # docker-playwright-lambda
 
-[![badge](https://github.com/umihico/docker-selenium-lambda/actions/workflows/demo-test.yml/badge.svg)](https://github.com/umihico/docker-playwright-lambda/actions/workflows/demo-test.yml)
+[![badge](https://github.com/umihico/docker-playwright-lambda/actions/workflows/demo-test.yml/badge.svg)](https://github.com/umihico/docker-playwright-lambda/actions/workflows/demo-test.yml)
+[![badge](https://github.com/umihico/docker-playwright-lambda/actions/workflows/auto-update.yml/badge.svg)](https://github.com/umihico/docker-playwright-lambda/actions/workflows/auto-update.yml)
+
+This is minimum demo of chrome automation by Node.js and playwright in AWS Lambda
+
+This image goes with these versions. [These are automatically updated and tested everyday.](https://github.com/umihico/docker-playwright-lambda/actions)
+
+- Node.js v20.11.0
+- Chromium 121.0.6167.57
+- Playwright 1.41.1
 
 ## Running the demo
 
