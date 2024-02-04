@@ -1,0 +1,106 @@
+name: auto-update
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+      - run-auto-update**
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: deploy-prod-stack
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ap-northeast-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Update playwright
+        run: npm install playwright@latest
+      - name: Note playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(npm show playwright version)" >> $GITHUB_OUTPUT
+      - name: Note docker image digest
+        id: docker-image-digest
+        run: |
+          docker pull public.ecr.aws/lambda/nodejs:latest
+          SHA256_DIGEST=$(docker inspect public.ecr.aws/lambda/nodejs:latest | jq -r '.[0].RepoDigests[0] | split(":") | .[1]' )
+          echo "SHA256_DIGEST=${SHA256_DIGEST}" >> $GITHUB_OUTPUT
+      - name: Update Dockerfile
+        run: |
+          SHA256_DIGEST=${{ steps.docker-image-digest.outputs.SHA256_DIGEST }}
+          sed -r "s/public.ecr.aws\/lambda\/nodejs[:@a-z0-9]+/public.ecr.aws\/lambda\/nodejs\@sha256\:${SHA256_DIGEST}/g" -i Dockerfile
+      - name: Install serverless
+        run: npm install -g serverless
+      - name: Deploy
+        run: sls deploy
+      - name: Note chrome version
+        id: chrome-versions
+        run: |
+          CHROME_VERSION=$(docker run --rm --entrypoint '' serverless-docker-playwright-lambda-prod:img /bin/bash -c 'CHROMIUM_DIR=$(ls node_modules/playwright-core/.local-browsers/ | grep chromium- | head -n 1) && node_modules/playwright-core/.local-browsers/$CHROMIUM_DIR/chrome-linux/chrome --version' | awk '{print $2}' | sed -e 's/^[[:space:]]*//')
+          echo "CHROME_VERSION=${CHROME_VERSION}" >> $GITHUB_OUTPUT
+      - name: Note node version
+        id: node-version
+        run: |
+          NODE_VERSION=$(docker run --rm --entrypoint '' serverless-docker-playwright-lambda-prod:img node -v)
+          echo "NODE_VERSION=${NODE_VERSION}" >> $GITHUB_OUTPUT
+      - name: Invoke
+        id: invoke
+        run: sls invoke -f demo > /tmp/scraping-result.txt
+      - name: Archive result
+        uses: actions/upload-artifact@v3
+        if: ${{ !env.ACT }}
+        with:
+          name: scraping-result
+          path: /tmp/scraping-result.txt
+      - name: Test
+        run: cat /tmp/scraping-result.txt | grep -q "This domain is for use in illustrative examples in documents"
+      - name: Update README
+        run: |
+          CHROME_VERSION=${{ steps.chrome-versions.outputs.CHROME_VERSION }}
+          PLAYWRIGHT_VERSION=${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+          NODE_VERSION=${{ steps.node-version.outputs.NODE_VERSION }}
+          sed -r "s/- Chromium [0-9.]+/- Chromium ${CHROME_VERSION}/g; s/- Node.js [v0-9.]+/- Node.js ${NODE_VERSION}/g; s/- Playwright [0-9.]+/- Playwright ${PLAYWRIGHT_VERSION}/g" -i README.md
+      - name: Detect changes
+        id: detect-changes
+        run: |
+          DO_RELEASE="yes"
+          git --no-pager diff --name-only | grep -q "README.md" || DO_RELEASE="no"
+          echo "DO_RELEASE=${DO_RELEASE}" >> $GITHUB_OUTPUT
+      - name: Setup git config
+        run: |
+          # https://qiita.com/thaim/items/3d1a4d09ec4a7d8844ce
+          git config user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Release
+        if: ${{ steps.detect-changes.outputs.DO_RELEASE == 'yes' && !env.ACT }}
+        run: |
+          BRANCH=$(date +%Y-%m-%d-%H%M%S)
+          TITLE="Version Updates $(date)"
+          git checkout -b $BRANCH
+          git add -u
+          echo "SHA256_DIGEST=${{ steps.docker-image-digest.outputs.SHA256_DIGEST }}" > /tmp/body-text.txt
+          echo "NODE_VERSION=${{ steps.node-version.outputs.NODE_VERSION }}" >> /tmp/body-text.txt
+          echo "PLAYWRIGHT_VERSION=${{ steps.selenium-version.outputs.PLAYWRIGHT_VERSION }}" >> /tmp/body-text.txt
+          echo -e "CHROME_VERSION=${{ steps.chrome-versions.outputs.CHROME_VERSION }}\n\n" >> /tmp/body-text.txt
+          git diff --staged >> /tmp/body-text.txt
+          git commit -m "${TITLE}"
+          git push --set-upstream origin $BRANCH
+          gh pr create --body-file /tmp/body-text.txt --title "PR:${TITLE}"
+          # gh pr merge --delete-branch --merge
+          # gh release create $BRANCH --notes-file /tmp/body-text.txt --title "${TITLE}"
+        env:
+          GH_TOKEN: ${{ github.token }}
