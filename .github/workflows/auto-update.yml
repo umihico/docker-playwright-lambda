@@ -44,7 +44,7 @@ jobs:
           SHA256_DIGEST=${{ steps.docker-image-digest.outputs.SHA256_DIGEST }}
           sed -r "s/public.ecr.aws\/lambda\/nodejs[:@a-z0-9]+/public.ecr.aws\/lambda\/nodejs\@sha256\:${SHA256_DIGEST}/g" -i Dockerfile
       - name: Install serverless
-        run: npm install -g serverless
+        run: npm install -g serverless@^3
       - name: Deploy
         run: sls deploy
       - name: Note chrome version
