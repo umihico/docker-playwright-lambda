@@ -9,7 +9,7 @@ This image goes with these versions. [These are automatically updated and tested
 
 - Node.js v20.14.0
 - Chromium 127.0.6533.17
-- Playwright 1.45.2
+- Playwright 1.45.3
 
 ## Running the demo
 
