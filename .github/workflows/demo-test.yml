@@ -2,7 +2,7 @@ name: demo-test
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 1 * * *" # Cleaning ECR must run after auto-update.yml (0 0 * * *)
   push:
     branches:
       - run-demo-test**
@@ -31,3 +31,5 @@ jobs:
           sls deploy
           sls invoke --function demo |& tee /tmp/scraping-result.txt
           cat /tmp/scraping-result.txt | grep -q "This domain is for use in illustrative examples in documents"
+      - name: Clean up (ECR costs)
+        run: sls remove
