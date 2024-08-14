@@ -2,7 +2,7 @@ name: auto-update
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 1 * * *" # Cleaning ECR must run after demo-test.yml (0 0 * * *)
   push:
     branches:
       - main
@@ -104,3 +104,5 @@ jobs:
           gh release create $BRANCH --notes-file /tmp/body-text.txt --title "${TITLE}"
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: Clean up (ECR costs)
+        run: sls remove
