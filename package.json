@@ -6,6 +6,6 @@
     "demo": "node index.js"
   },
   "dependencies": {
-    "playwright": "^1.48.2"
+    "playwright": "^1.49.0"
   }
 }
