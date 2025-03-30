@@ -61,7 +61,7 @@ jobs:
         id: invoke
         run: sls invoke -f demo > /tmp/scraping-result.txt
       - name: Archive result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ !env.ACT }}
         with:
           name: scraping-result
