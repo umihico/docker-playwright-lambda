@@ -8,8 +8,8 @@ This is minimum demo of chrome automation by Node.js and playwright in AWS Lambd
 This image goes with these versions. [These are automatically updated and tested everyday.](https://github.com/umihico/docker-playwright-lambda/actions)
 
 - Node.js v22.15.1
-- Chromium 138.0.7204.23
-- Playwright 1.53.2
+- Chromium 139.0.7258.5
+- Playwright 1.54.0
 
 ## Running the demo
 
