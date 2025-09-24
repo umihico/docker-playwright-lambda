@@ -1,5 +1,5 @@
 
-FROM public.ecr.aws/lambda/nodejs@sha256:50a7ebf4fd6e17f6634926df07f073637c7586d2a021de09bf8eaf38ca2166db
+FROM public.ecr.aws/lambda/nodejs@sha256:5a0f6472e69b7651f9e784bfbbf45264b53a22836c2aee77d59daf7265965748
 
 # Maybe some of these are not needed. I just copied them from https://github.com/umihico/docker-selenium-lambda
 RUN dnf update -y && \
